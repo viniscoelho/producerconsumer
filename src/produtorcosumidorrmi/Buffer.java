@@ -14,7 +14,7 @@ public class Buffer implements Runnable, Status {
 
     private List<Integer> elements = new LinkedList<Integer>();
     private static int N;
-    private ServerSocket serverSock = null;
+    private ServerSocket serverSock;
     private static Socket connection;
 
     public Buffer(int port, int quantElements) {

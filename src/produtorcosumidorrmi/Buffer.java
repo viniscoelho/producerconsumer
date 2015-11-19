@@ -13,9 +13,9 @@ import java.util.List;
 public class Buffer implements Runnable, Status {
 
     private List<Integer> elements = new LinkedList<Integer>();
-    private static int N;
+    private int N;
     private ServerSocket serverSock;
-    private static Socket connection;
+    private Socket connection;
 
     public Buffer(int port, int quantElements) {
         try {
@@ -44,11 +44,11 @@ public class Buffer implements Runnable, Status {
 
         if (elements.isEmpty()) {
             System.out.println("Buffer empty!");
-            output.print(IS_EMPTY);
+            output.println(IS_EMPTY);
         } else {
             Integer value = elements.remove(0);
             System.out.println("Consuming: " + value);
-            output.print(IS_CONSUMING);
+            output.println(IS_CONSUMING);
         }
     }
 
@@ -60,11 +60,11 @@ public class Buffer implements Runnable, Status {
         System.out.print("oiiii " + tmp);
         if (elements.size() == N) {
             System.out.println("Buffer is full!");
-            output.print(IS_FULL);
+            output.println(IS_FULL);
         } else {
             elements.add(tmp);
             System.out.println("Producing: " + element);
-            output.print(IS_PRODUCING);
+            output.println(IS_PRODUCING);
         }
     }
 

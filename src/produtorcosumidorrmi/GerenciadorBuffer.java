@@ -14,11 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 public class GerenciadorBuffer {
-
-    private Buffer primaryBuffer;
-    private Buffer secondaryBuffer;
     private Socket primaryConn;
     private Socket secondaryConn;
+    private Boolean primaryActive; 
+    private Boolean secondaryActive; 
     private ServerSocket serverSocket = null;
     private final int PORT = 12345;
     private final int PRIMARY_PORT = 12346;
@@ -57,14 +56,7 @@ public class GerenciadorBuffer {
     }
 
     public void createScenario() {
-        primaryBuffer = new Buffer(PRIMARY_PORT, 10);
-        secondaryBuffer = new Buffer(SECONDARY_PORT, 10);
-
-        Thread t1 = new Thread(primaryBuffer);
-        t1.start();
-
-        Thread t2 = new Thread(secondaryBuffer);
-        t2.start();
+        
 
         try {
 //            for (int i = 0; i < 2; i++) {
@@ -78,8 +70,10 @@ public class GerenciadorBuffer {
 
             primaryConn = new Socket(InetAddress.getLocalHost()
                     .getHostAddress(), PRIMARY_PORT);
+            primaryActive = true;
             secondaryConn = new Socket(InetAddress.getLocalHost()
                     .getHostAddress(), SECONDARY_PORT);
+            secondaryActive = true;
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -93,25 +87,49 @@ public class GerenciadorBuffer {
     class GerenciadorCliente extends Thread {
 
         private Socket connection;
-        private String msg;
-
+        private String msg, answer;
+        
         public GerenciadorCliente(Socket connection) {
             this.connection = connection;
         }
 
         public void waitAnswer(Socket c) {
-            PrintWriter outputPrimary;
+            PrintWriter outputBuffer, outputClient;
             try {
-                outputPrimary = new PrintWriter(c.getOutputStream(), true);
-                outputPrimary.println(msg);
+                outputBuffer = new PrintWriter(c.getOutputStream(), true);
+                outputBuffer.println(msg);
 
                 BufferedReader inputPrimary = new BufferedReader(
                         new InputStreamReader(c.getInputStream()));
 
                 char [] buffy = new char[32];
                 int sz = inputPrimary.read(buffy);
-                msg = new String(buffy, 0, sz-1);
-                System.out.println("Resposta: " + msg);
+                answer = new String(buffy, 0, sz-1);
+                System.out.println("Resposta Second: " + answer);
+                
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        
+        public void waitAnswerReply(Socket c) {
+            PrintWriter outputBuffer, outputClient;
+            try {
+                outputBuffer = new PrintWriter(c.getOutputStream(), true);
+                outputBuffer.println(msg);
+
+                BufferedReader inputPrimary = new BufferedReader(
+                        new InputStreamReader(c.getInputStream()));
+
+                char [] buffy = new char[32];
+                System.out.println("Resposta First: Esperando");
+                int sz = inputPrimary.read(buffy);
+                answer = new String(buffy, 0, sz-1);
+                System.out.println("Resposta First: " + answer);
+                
+                outputClient = new PrintWriter(connection.getOutputStream(), true);
+                outputClient.println(answer);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -131,13 +149,11 @@ public class GerenciadorBuffer {
                         msg = new String(buffy, 0, sz-1);
                         System.out.println(msg);
                     }
-                    
+                     
                     Thread t1 = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            while (true) {
-                                waitAnswer(primaryConn);
-                            }
+                            waitAnswerReply(primaryConn);
                         }
                     });
                     t1.start();
@@ -145,13 +161,10 @@ public class GerenciadorBuffer {
                     Thread t2 = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            while (true) {
-                                waitAnswer(secondaryConn);
-                            }
+                        	waitAnswer(secondaryConn);
                         }
                     });
                     t2.start();
-
                 }
             } catch (IOException e) {
             }

@@ -42,6 +42,7 @@ public class Produtor extends Thread implements Status {
                         .toString());
                 output.println(value);
                 
+                System.out.println("Waiting...");
                 char [] buffy = new char[32];
                 int sz = input.read(buffy);
                 String answer = new String(buffy, 0, sz-1);

@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -59,15 +60,6 @@ public class GerenciadorBuffer {
         
 
         try {
-//            for (int i = 0; i < 2; i++) {
-//                Produtor p = new Produtor(InetAddress.getLocalHost()
-//                        .getHostAddress(), PORT);
-//                p.start();
-//                Consumidor c = new Consumidor(InetAddress.getLocalHost()
-//                        .getHostAddress(), PORT);
-//                c.start();
-//            }
-
             primaryConn = new Socket(InetAddress.getLocalHost()
                     .getHostAddress(), PRIMARY_PORT);
             primaryActive = true;
@@ -93,7 +85,7 @@ public class GerenciadorBuffer {
             this.connection = connection;
         }
 
-        public void waitAnswer(Socket c) {
+        public Boolean waitAnswer(Socket c) {
             PrintWriter outputBuffer, outputClient;
             try {
                 outputBuffer = new PrintWriter(c.getOutputStream(), true);
@@ -103,17 +95,24 @@ public class GerenciadorBuffer {
                         new InputStreamReader(c.getInputStream()));
 
                 char [] buffy = new char[32];
+                try {
                 int sz = inputPrimary.read(buffy);
                 answer = new String(buffy, 0, sz-1);
                 System.out.println("Resposta Second: " + answer);
+                } catch(SocketException e) {
+                	System.out.println("ERROR!");
+                	return false;
+                } 
                 
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
+            return true;
         }
         
-        public void waitAnswerReply(Socket c) {
+        public Boolean waitAnswerReply(Socket c) {
             PrintWriter outputBuffer, outputClient;
             try {
                 outputBuffer = new PrintWriter(c.getOutputStream(), true);
@@ -124,16 +123,26 @@ public class GerenciadorBuffer {
 
                 char [] buffy = new char[32];
                 System.out.println("Resposta First: Esperando");
-                int sz = inputPrimary.read(buffy);
-                answer = new String(buffy, 0, sz-1);
-                System.out.println("Resposta First: " + answer);
                 
-                outputClient = new PrintWriter(connection.getOutputStream(), true);
-                outputClient.println(answer);
+                try {	
+                	int sz = inputPrimary.read(buffy);
+                	answer = new String(buffy, 0, sz-1);
+                    System.out.println("Resposta First: " + answer);
+                    
+                    outputClient = new PrintWriter(connection.getOutputStream(), true);
+                    outputClient.println(answer);
+                } catch(SocketException e) {
+                	System.out.println("ERROR!");
+                	outputClient = new PrintWriter(connection.getOutputStream(), true);
+                    outputClient.println(Status.ERROR_MSG);
+                	return false;
+                }
+ 
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+			return true; 
         }
 
         public void run() {
@@ -149,22 +158,37 @@ public class GerenciadorBuffer {
                         msg = new String(buffy, 0, sz-1);
                         System.out.println(msg);
                     }
-                     
-                    Thread t1 = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            waitAnswerReply(primaryConn);
-                        }
-                    });
-                    t1.start();
-
-                    Thread t2 = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                        	waitAnswer(secondaryConn);
-                        }
-                    });
-                    t2.start();
+                    
+                    if(primaryActive) {
+                    	Thread t1 = new Thread(new Runnable() {
+                    		@Override
+                    		public void run() {
+                    			primaryActive = waitAnswerReply(primaryConn);
+                    		}
+                    	});
+                    	
+                    	t1.start();
+                    	
+                    	if(secondaryActive) {
+                    		Thread t2 = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                	secondaryActive = waitAnswer(secondaryConn);
+                                }
+                            });
+                            t2.start();
+                    	}
+                    }
+                    else { 
+                    	Thread t1 = new Thread(new Runnable() {
+                    		@Override
+                    		public void run() {
+                    			secondaryActive = waitAnswerReply(secondaryConn);
+                    		}
+                    	});
+                    	
+                    	t1.start();
+                    }
                 }
             } catch (IOException e) {
             }

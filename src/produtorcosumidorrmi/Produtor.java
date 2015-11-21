@@ -30,12 +30,11 @@ public class Produtor extends Thread implements Status {
                     true);
             BufferedReader input = new BufferedReader(new InputStreamReader(
                     connection.getInputStream()));
-
+            Integer value = (int) (Math.random() * 10000);
+            
             while (true) {
                 int wait = (int) (Math.random() * 3000);
                 Thread.sleep(wait);
-
-                Integer value = (int) (Math.random() * 10000);
 
                 System.out.println("Producing: " + value);
                 System.out.println(connection.getRemoteSocketAddress()
@@ -52,6 +51,9 @@ public class Produtor extends Thread implements Status {
                 if (answer.equals(IS_FULL)) {
                     wait = (int) (Math.random() * 1000);
                     Thread.sleep(wait);
+                }
+                else {
+                	value = (int) (Math.random() * 10000);
                 }
 
             }

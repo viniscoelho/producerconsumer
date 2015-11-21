@@ -1,13 +1,15 @@
 package produtorcosumidorrmi;
 
+import java.util.Scanner;
+
 public class MainFour {
 	public static void main(String[] args) {
-	    Buffer secondaryBuffer;
-	    final int SECONDARY_PORT = 12347;
+		Consumidor c;
+		Scanner scan = new Scanner(System.in);
+		String ip = scan.next();
+		int port = scan.nextInt();
 		
-		secondaryBuffer = new Buffer(SECONDARY_PORT, 10);
-		
-		Thread t2 = new Thread(secondaryBuffer);
-		t2.start();
+		c = new Consumidor(ip, port);
+		c.start();
 	}
 }

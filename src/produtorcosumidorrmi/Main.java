@@ -6,8 +6,8 @@ public class Main {
 
     public static void main(String[] args) {
         GerenciadorBuffer gerenciador = new GerenciadorBuffer();
-        gerenciador.waitForConnections();
         gerenciador.createScenario();
+        gerenciador.waitForConnections();
     }
 
 }

@@ -1,10 +1,14 @@
-package produtorcosumidorrmi;
+package produtorconsumidor;
+
+/**
+ *
+ * @author viniciuscoelho, thaismombach
+ */
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -21,9 +25,8 @@ public class Buffer implements Runnable, Status {
         try {
             serverSock = new ServerSocket(port);
             N = quantElements;
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        }
+        catch (IOException e) {
         }
     }
 
@@ -33,8 +36,6 @@ public class Buffer implements Runnable, Status {
             connection = serverSock.accept();
             System.out.println("Connected!");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -45,7 +46,8 @@ public class Buffer implements Runnable, Status {
         if (elements.isEmpty()) {
             System.out.println("Buffer empty!");
             output.println(IS_EMPTY);
-        } else {
+        }
+        else {
             Integer value = elements.remove(0);
             System.out.println("Consuming: " + value);
             output.println(IS_CONSUMING);
@@ -61,7 +63,8 @@ public class Buffer implements Runnable, Status {
         if (elements.size() == N) {
             System.out.println("Buffer is full!");
             output.println(IS_FULL);
-        } else {
+        }
+        else {
             elements.add(tmp);
             System.out.println("Producing: " + element);
             output.println(IS_PRODUCING);
@@ -87,9 +90,11 @@ public class Buffer implements Runnable, Status {
                 System.out.println("List (Before Request): "
                         + elements.toString());
                 System.out.println("Number of elements: " + elements.size());
+                
                 if (msg.equals("get")) {
                     getElement();
-                } else {
+                }
+                else {
                     putElement(msg);
                 }
 
@@ -98,7 +103,8 @@ public class Buffer implements Runnable, Status {
                         + elements.toString());
                 System.out.println("Number of elements: " + elements.size());
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
         }
     }
 

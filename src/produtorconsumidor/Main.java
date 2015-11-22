@@ -1,6 +1,9 @@
-package produtorcosumidorrmi;
+package produtorconsumidor;
 
-import java.io.IOException;
+/**
+ *
+ * @author viniciuscoelho, thaismombach
+ */
 
 public class Main {
 

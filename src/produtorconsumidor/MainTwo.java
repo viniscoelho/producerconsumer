@@ -1,4 +1,4 @@
-package produtorcosumidorrmi;
+package produtorconsumidor;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

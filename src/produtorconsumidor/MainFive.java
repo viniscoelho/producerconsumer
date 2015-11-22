@@ -1,4 +1,4 @@
-package produtorcosumidorrmi;
+package produtorconsumidor;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -1,10 +1,14 @@
-package produtorcosumidorrmi;
+package produtorconsumidor;
+
+/**
+ *
+ * @author viniciuscoelho, thaismombach
+ */
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -12,204 +16,201 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class GerenciadorBuffer {
-	private Socket primaryConn;
-	private Socket secondaryConn;
-	private Boolean primaryActive;
-	private Boolean secondaryActive;
-	private ServerSocket serverSocket = null;
-	private final int PORT = 12345;
-	private static final Object lock = new Object();
 
-	public GerenciadorBuffer() {
-		try {
-			serverSocket = new ServerSocket(PORT);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    private Socket primaryConn;
+    private Socket secondaryConn;
+    private Boolean primaryActive;
+    private Boolean secondaryActive;
+    private ServerSocket serverSocket = null;
+    private final int PORT = 12345;
+    private static final Object lock = new Object();
 
-	public void waitForConnections() {
-		while (true) {
-			try {
-				System.out.println("Waiting for connections...");
+    public GerenciadorBuffer() {
+        try {
+            serverSocket = new ServerSocket(PORT);
+        } catch (IOException e) {
+        }
+    }
 
-				Socket connection = serverSocket.accept();
-				System.out.println("Connected!");
-				GerenciadorCliente gc = new GerenciadorCliente(connection);
-				gc.start();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
+    public void waitForConnections() {
+        while (true) {
+            try {
+                System.out.println("Waiting for connections...");
 
-	public void createScenario() {
+                Socket connection = serverSocket.accept();
+                System.out.println("Connected!");
+                GerenciadorCliente gc = new GerenciadorCliente(connection);
+                gc.start();
+            } catch (IOException e) {
+            }
+        }
+    }
 
-		try {
-			int primary_port;
-			int secondary_port;
+    public void createScenario() {
 
-			Scanner scan = new Scanner(System.in);
-			String ipBufferUm = scan.next();
-			primary_port = scan.nextInt();
-			String ipBufferDois = scan.next();
-			secondary_port = scan.nextInt();
+        try {
+            int primary_port;
+            int secondary_port;
 
-			primaryConn = new Socket(ipBufferUm, primary_port);
-			primaryActive = true;
-			secondaryConn = new Socket(ipBufferDois, secondary_port);
-			secondaryActive = true;
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            Scanner scan = new Scanner(System.in);
+            String ipBufferUm = scan.next();
+            primary_port = scan.nextInt();
+            String ipBufferDois = scan.next();
+            secondary_port = scan.nextInt();
 
-	}
+            primaryConn = new Socket(ipBufferUm, primary_port);
+            primaryActive = true;
+            
+            secondaryConn = new Socket(ipBufferDois, secondary_port);
+            secondaryActive = true;
+        }
+        catch (UnknownHostException e) {
+        }
+        catch (IOException e) {
+        }
 
-	class GerenciadorCliente extends Thread {
+    }
 
-		private Socket connection;
-		private String msg, answer;
+    class GerenciadorCliente extends Thread {
 
-		public GerenciadorCliente(Socket connection) {
-			this.connection = connection;
-		}
+        private Socket connection;
+        private String msg, answer;
 
-		public Boolean waitAnswer(Socket c, String msg) {
-			synchronized (lock) {
-				PrintWriter outputBuffer, outputClient;
-				try {
-					outputBuffer = new PrintWriter(c.getOutputStream(), true);
-					outputBuffer.println(msg);
+        public GerenciadorCliente(Socket connection) {
+            this.connection = connection;
+        }
 
-					BufferedReader inputPrimary = new BufferedReader(
-							new InputStreamReader(c.getInputStream()));
+        public Boolean waitAnswer(Socket c, String msg) {
+            synchronized (lock) {
+                PrintWriter outputBuffer;
+                try {
+                    outputBuffer = new PrintWriter(c.getOutputStream(), true);
+                    outputBuffer.println(msg);
 
-					char[] buffy = new char[32];
-					try {
-						int sz = inputPrimary.read(buffy);
-						if (sz != -1) {
-							System.out.println("Resposta: " + buffy);
-							answer = new String(buffy, 0, sz - 1);
-						}
-						System.out.println("Resposta Second: " + answer);
-					} catch (SocketException e) {
-						System.out.println("ERROR!");
-						return false;
-					}
+                    BufferedReader inputPrimary = new BufferedReader(
+                            new InputStreamReader(c.getInputStream()));
 
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+                    char[] buffy = new char[32];
+                    try {
+                        int sz = inputPrimary.read(buffy);
+                        if (sz != -1) {
+                            System.out.println("Resposta Buffer 01: " + buffy);
+                            answer = new String(buffy, 0, sz - 1);
+                        }
+                        System.out.println("Resposta Buffer 02: " + answer);
+                    }
+                    catch (SocketException e) {
+                        System.out.println("ERROR!");
+                        return false;
+                    }
 
-				return true;
-			}
-		}
+                } catch (IOException e) {
+                }
 
-		public Boolean waitAnswerReply(Socket c, String msg) {
-			synchronized (lock) {
-				PrintWriter outputBuffer, outputClient;
-				try {
-					outputBuffer = new PrintWriter(c.getOutputStream(), true);
-					outputBuffer.println(msg);
+                return true;
+            }
+        }
 
-					BufferedReader inputPrimary = new BufferedReader(
-							new InputStreamReader(c.getInputStream()));
+        public Boolean waitAnswerReply(Socket c, String msg) {
+            synchronized (lock) {
+                PrintWriter outputBuffer, outputClient;
+                try {
+                    outputBuffer = new PrintWriter(c.getOutputStream(), true);
+                    outputBuffer.println(msg);
 
-					char[] buffy = new char[32];
+                    BufferedReader inputPrimary = new BufferedReader(
+                            new InputStreamReader(c.getInputStream()));
 
-					try {
-						int sz = inputPrimary.read(buffy);
-						if (sz != -1) {
-							answer = new String(buffy, 0, sz - 1);
-							System.out.println("Resposta First: " + answer);
-						}
+                    char[] buffy = new char[32];
 
-						outputClient = new PrintWriter(
-								connection.getOutputStream(), true);
-						outputClient.println(answer);
-					} catch (SocketException e) {
-						System.out.println("ERROR!");
-						outputClient = new PrintWriter(
-								connection.getOutputStream(), true);
-						outputClient.println(Status.ERROR_MSG);
-						return false;
-					}
+                    try {
+                        int sz = inputPrimary.read(buffy);
+                        if (sz != -1) {
+                            answer = new String(buffy, 0, sz - 1);
+                            System.out.println("Resposta First: " + answer);
+                        }
 
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return true;
-			}
-		}
+                        outputClient = new PrintWriter(
+                                connection.getOutputStream(), true);
+                        outputClient.println(answer);
+                    }
+                    catch (SocketException e) {
+                        System.out.println("ERROR!");
+                        outputClient = new PrintWriter(
+                                connection.getOutputStream(), true);
+                        outputClient.println(Status.ERROR_MSG);
+                        return false;
+                    }
 
-		public void run() {
-			try {
-				BufferedReader input = new BufferedReader(
-						new InputStreamReader(connection.getInputStream()));
+                }
+                catch (IOException e) {
+                }
+                return true;
+            }
+        }
 
-				while (true) {
-					System.out
-							.println("---------------------------------------------------------------------");
-					char[] buffy = new char[32];
-					int sz = input.read(buffy);
-					if (sz != -1) {
-						msg = new String(buffy, 0, sz - 1);
-						System.out.println("Message: " + msg);
-					}
+        @Override
+        public void run() {
+            try {
+                BufferedReader input = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream()));
 
-					if (primaryActive) {
-						Thread t1 = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								primaryActive = waitAnswerReply(primaryConn,
-										msg);
-								Thread.currentThread().interrupt();
-							}
-							
-						});
+                while (true) {
+                    System.out
+                            .println("---------------------------------------------------------------------");
+                    char[] buffy = new char[32];
+                    int sz = input.read(buffy);
+                    if (sz != -1) {
+                        msg = new String(buffy, 0, sz - 1);
+                        System.out.println("Message: " + msg);
+                    }
 
-						if (secondaryActive) {
-							Thread t2 = new Thread(new Runnable() {
-								@Override
-								public void run() {
-									secondaryActive = waitAnswer(secondaryConn,
-											msg);
-									Thread.currentThread().interrupt();
-								}
-							});
-							t1.start();
-							t2.start();
-						}
-						else
-							t1.start();
-					} 
-					else {
-						Thread t1 = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								secondaryActive = waitAnswerReply(
-										secondaryConn, msg);
-								Thread.currentThread().interrupt();
-							}
-						});
+                    if (primaryActive) {
+                        Thread t1 = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                primaryActive = waitAnswerReply(primaryConn,
+                                        msg);
+                                Thread.currentThread().interrupt();
+                            }
 
-						t1.start();
-					}
+                        });
 
-					System.out
-							.println("---------------------------------------------------------------------");
-				}
-			} catch (IOException e) {
-			}
-		}
-	}
+                        if (secondaryActive) {
+                            Thread t2 = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    secondaryActive = waitAnswer(secondaryConn,
+                                            msg);
+                                    Thread.currentThread().interrupt();
+                                }
+                            });
+                            t1.start();
+                            t2.start();
+                        }
+                        else {
+                            t1.start();
+                        }
+                    }
+                    else {
+                        Thread t1 = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                secondaryActive = waitAnswerReply(
+                                        secondaryConn, msg);
+                                Thread.currentThread().interrupt();
+                            }
+                        });
+
+                        t1.start();
+                    }
+
+                    System.out.println("---------------------------------------------------------------------");
+                }
+            }
+            catch (IOException e) {
+            }
+        }
+    }
 
 }

@@ -79,6 +79,8 @@ public class Gerenciador {
 			try {
 				input = new BufferedReader(new InputStreamReader(
 						connection.getInputStream()));
+				PrintWriter output = new PrintWriter(
+						connection.getOutputStream(), true);
 
 				while (true) {
 					System.out
@@ -99,6 +101,18 @@ public class Gerenciador {
 						PrintWriter outputClient = new PrintWriter(
 								conn.getOutputStream(), true);
 						outputClient.println(msg);
+						
+						BufferedReader inputClient = new BufferedReader(new InputStreamReader(
+								conn.getInputStream()));
+						buffy = new char[32];
+						sz = inputClient.read(buffy);
+
+						if (sz != -1) {
+							msg = new String(buffy, 0, sz - 1);
+							System.out.println("Message: " + msg);
+							output.println(msg);
+						}
+						
 						conn.close();
 					}
 				}

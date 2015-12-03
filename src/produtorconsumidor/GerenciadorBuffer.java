@@ -40,8 +40,9 @@ public class GerenciadorBuffer {
 				int portBuff = scan.nextInt();
 
 				listBuffers.add(new Socket(address, portBuff));
-				
+
 				VerificaBuffer vb = new VerificaBuffer(listBuffers.get(i));
+				vb.start();
 			}
 
 		} catch (IOException e) {
@@ -68,20 +69,16 @@ public class GerenciadorBuffer {
 			String msg;
 
 			while (true) {
-				System.out
-						.println("---------------------------------------------------------------------");
 				char[] buffy = new char[32];
 				int sz = input.read(buffy);
 				msg = "";
 				if (sz != -1) {
 					msg = new String(buffy, 0, sz - 1);
-					System.out.println("Message: " + msg);
 				}
 
 				if (msg.equals("getBuff")) {
 					String buffAddress = listBuffers.get(0)
 							.getRemoteSocketAddress().toString();
-					System.out.println("Buff Address: " + buffAddress);
 					PrintWriter outputClient = new PrintWriter(
 							connection.getOutputStream(), true);
 					outputClient.println(buffAddress);
@@ -100,37 +97,42 @@ public class GerenciadorBuffer {
 		}
 
 		public void run() {
-			try {
-				BufferedReader input = new BufferedReader(
-						new InputStreamReader(connection.getInputStream()));
-				PrintWriter outputClient = new PrintWriter(
-						connection.getOutputStream(), true);
-				String msg;
+			String msg;
 
-				while (true) {
+			while (true) {
 
-					try {
-						System.out
-								.println("---------------------------------------------------------------------");
-						outputClient.println("ok");
+				try {
+					PrintWriter outputClient = new PrintWriter(
+							connection.getOutputStream(), true);
+					outputClient.println("ok");
 
-						char[] buffy = new char[32];
-						int sz = input.read(buffy);
-						msg = "";
-						System.out.println("Size: " + sz);
-						if (sz != -1) {
-							msg = new String(buffy, 0, sz - 1);
-							System.out.println("Message: " + msg);
-						}
-					} catch (SocketException se) {
-						listBuffers.remove(connection);
-						Thread.currentThread().interrupt();
+					char[] buffy = new char[32];
+					BufferedReader input = new BufferedReader(
+							new InputStreamReader(connection.getInputStream()));
+					int sz = input.read(buffy);
+					msg = "";
+					if (sz != -1) {
+						msg = new String(buffy, 0, sz - 1);
 					}
-
+					//System.out.println("Msg: " + msg);
+				} catch (SocketException se) {
+					System.out.println("remove");
+					int index = listBuffers.indexOf(connection);
+					try {
+						PrintWriter outputPrev = new PrintWriter(listBuffers.get(
+								index - 1).getOutputStream(), true);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String info = listBuffers.get(index)
+							.getRemoteSocketAddress().toString();
+					listBuffers.remove(connection);
+					Thread.currentThread().interrupt();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 
 		}

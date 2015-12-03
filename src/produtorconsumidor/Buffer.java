@@ -22,6 +22,7 @@ public class Buffer implements Runnable, Status {
 	private String nextAddress;
 	private ServerSocket serverSock;
 	private Socket connection;
+	private static final Object countLock = new Object();
 
 	public Buffer(int port, int quantElements, String nextAddress, int nextPort) {
 		try {
@@ -92,7 +93,10 @@ public class Buffer implements Runnable, Status {
 				while (true) {
 					char[] buffy = new char[32];
 					int sz = input.read(buffy);
-					String msg = new String(buffy, 0, sz - 1);
+					String msg = "";
+					if (sz != -1) {
+						msg = new String(buffy, 0, sz - 1);
+					}
 
 					System.out.println("Element sent: " + msg);
 
@@ -105,25 +109,37 @@ public class Buffer implements Runnable, Status {
 
 					if (msg.equals("get")) {
 						getElement();
-						if (nextAddress != null) {
-							Socket connectionNext = new Socket(nextAddress,
-									nextPort);
-							PrintWriter outputNext = new PrintWriter(
-									connectionNext.getOutputStream(), true);
-							outputNext.println(msg);
+						synchronized (countLock) {
+							if (nextAddress != null) {
+								Socket connectionNext = new Socket(nextAddress,
+										nextPort);
+								PrintWriter outputNext = new PrintWriter(
+										connectionNext.getOutputStream(), true);
+								outputNext.println(msg);
+							}
 						}
 					} else if (msg.equals("ok")) {
+						System.out.println("ok");
 						PrintWriter output = new PrintWriter(
 								connection.getOutputStream(), true);
 						output.println("ok");
-					} else {
+					} else if (msg != "" && msg.charAt(0) == '/') {
+						synchronized (countLock) {
+							int pos = msg.indexOf(':');
+							nextAddress = msg.substring(1, pos);
+							nextPort = Integer.parseInt(msg.substring(pos + 1));
+							System.out.println(nextAddress + " " + nextPort);
+						}
+					} else if (!msg.equals("")) {
 						putElement(msg);
-						if (nextAddress != null) {
-							Socket connectionNext = new Socket(nextAddress,
-									nextPort);
-							PrintWriter outputNext = new PrintWriter(
-									connectionNext.getOutputStream(), true);
-							outputNext.println(msg);
+						synchronized (countLock) {
+							if (nextAddress != null) {
+								Socket connectionNext = new Socket(nextAddress,
+										nextPort);
+								PrintWriter outputNext = new PrintWriter(
+										connectionNext.getOutputStream(), true);
+								outputNext.println(msg);
+							}
 						}
 					}
 

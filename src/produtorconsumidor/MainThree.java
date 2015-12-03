@@ -5,16 +5,22 @@ import java.util.Scanner;
 public class MainThree {
 	
 	public static void main(String[] args) {
-		Buffer primaryBuffer;
+		Scanner scan = new Scanner(System.in);
+		int n = scan.nextInt();
+		Buffer buff;
 		
-	    Scanner scan = new Scanner(System.in);
-	    int primary_port = scan.nextInt();
-    	int quantElements = scan.nextInt();
-    	
-	    primaryBuffer = new Buffer(primary_port, quantElements);
-
-		Thread t1 = new Thread(primaryBuffer);
-		t1.start();
+		if(n != 12984) {
+			String next = scan.next();
+			int port = scan.nextInt();
+		
+			buff = new Buffer(n, 10, next, port);
+		}
+		else {
+			buff = new Buffer(n, 10, null, 0);
+		}
+		
+		Thread t = new Thread(buff); 
+		t.start();
 	}
 
 }

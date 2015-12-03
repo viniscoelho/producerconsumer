@@ -8,8 +8,7 @@ package produtorconsumidor;
 public class Main {
 
     public static void main(String[] args) {
-        GerenciadorBuffer gerenciador = new GerenciadorBuffer();
-        gerenciador.createScenario();
+        Gerenciador gerenciador = new Gerenciador();
         gerenciador.waitForConnections();
     }
 

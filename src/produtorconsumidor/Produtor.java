@@ -13,6 +13,7 @@ public class Produtor extends Thread implements Status {
 
     public Produtor(String host, int port) {
         try {
+        	System.out.println("entrou");
             connection = new Socket(host, port);
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
@@ -45,17 +46,16 @@ public class Produtor extends Thread implements Status {
                 char [] buffy = new char[32];
                 int sz = input.read(buffy);
                 String answer = new String(buffy, 0, sz-1);
-
-                System.out.println("Produtor " + answer);
                 
                 if (answer.equals(IS_FULL)) {
+                	System.out.println("FULL");
                     wait = (int) (Math.random() * 1000);
                     Thread.sleep(wait);
                 }
                 else {
+                	System.out.println("OK");
                 	value = (int) (Math.random() * 10000);
                 }
-
             }
 
         } catch (IOException e) {

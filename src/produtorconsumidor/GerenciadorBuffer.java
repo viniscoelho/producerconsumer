@@ -9,208 +9,131 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 public class GerenciadorBuffer {
 
-    private Socket primaryConn;
-    private Socket secondaryConn;
-    private Boolean primaryActive;
-    private Boolean secondaryActive;
-    private ServerSocket serverSocket = null;
-    private final int PORT = 12345;
-    private static final Object lock = new Object();
+	private List<Socket> listBuffers;
+	private ServerSocket serverSocket = null;
+	private final int PORT = 12346;
 
-    public GerenciadorBuffer() {
-        try {
-            serverSocket = new ServerSocket(PORT);
-        } catch (IOException e) {
-        }
-    }
+	public GerenciadorBuffer() {
+		try {
+			serverSocket = new ServerSocket(PORT);
+			listBuffers = new LinkedList<Socket>();
 
-    public void waitForConnections() {
-        while (true) {
-            try {
-                System.out.println("Waiting for connections...");
+			System.out.println("Quantidade de Buffers:");
+			Scanner scan = new Scanner(System.in);
+			int n = scan.nextInt();
 
-                Socket connection = serverSocket.accept();
-                System.out.println("Connected!");
-                GerenciadorCliente gc = new GerenciadorCliente(connection);
-                gc.start();
-            } catch (IOException e) {
-            }
-        }
-    }
+			for (int i = 0; i < n; i++) {
+				System.out.print("Endereco IP: ");
+				String address = scan.next();
+				System.out.print("Porta: ");
+				int portBuff = scan.nextInt();
 
-    public void createScenario() {
+				listBuffers.add(new Socket(address, portBuff));
+				
+				VerificaBuffer vb = new VerificaBuffer(listBuffers.get(i));
+			}
 
-        try {
-            int primary_port;
-            int secondary_port;
+		} catch (IOException e) {
+		}
+	}
 
-            Scanner scan = new Scanner(System.in);
-            String ipBufferUm = scan.next();
-            primary_port = scan.nextInt();
-            String ipBufferDois = scan.next();
-            secondary_port = scan.nextInt();
+	public void waitForConnections() {
+		try {
+			System.out.println("Waiting for connections...");
 
-            primaryConn = new Socket(ipBufferUm, primary_port);
-            primaryActive = true;
-            
-            secondaryConn = new Socket(ipBufferDois, secondary_port);
-            secondaryActive = true;
-        }
-        catch (UnknownHostException e) {
-        }
-        catch (IOException e) {
-        }
+			Socket connection = serverSocket.accept();
+			System.out.println("Connected!");
+			waitForMessages(connection);
+		} catch (IOException e) {
+		}
+	}
 
-    }
+	public void waitForMessages(Socket connection) {
+		try {
+			System.out.println("Waiting for Msgs...");
 
-    class GerenciadorCliente extends Thread {
+			BufferedReader input = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+			String msg;
 
-        private Socket connection;
-        private String msg, answer;
+			while (true) {
+				System.out
+						.println("---------------------------------------------------------------------");
+				char[] buffy = new char[32];
+				int sz = input.read(buffy);
+				msg = "";
+				if (sz != -1) {
+					msg = new String(buffy, 0, sz - 1);
+					System.out.println("Message: " + msg);
+				}
 
-        public GerenciadorCliente(Socket connection) {
-            this.connection = connection;
-        }
+				if (msg.equals("getBuff")) {
+					String buffAddress = listBuffers.get(0)
+							.getRemoteSocketAddress().toString();
+					System.out.println("Buff Address: " + buffAddress);
+					PrintWriter outputClient = new PrintWriter(
+							connection.getOutputStream(), true);
+					outputClient.println(buffAddress);
+				}
+			}
 
-        public Boolean waitAnswer(Socket c, String msg) {
-            synchronized (lock) {
-                PrintWriter outputBuffer;
-                try {
-                    outputBuffer = new PrintWriter(c.getOutputStream(), true);
-                    outputBuffer.println(msg);
+		} catch (IOException e) {
+		}
+	}
 
-                    BufferedReader inputPrimary = new BufferedReader(
-                            new InputStreamReader(c.getInputStream()));
+	class VerificaBuffer extends Thread {
+		private Socket connection;
 
-                    char[] buffy = new char[32];
-                    try {
-                        int sz = inputPrimary.read(buffy);
-                        if (sz != -1) {
-                            System.out.println("Resposta Buffer 01: " + buffy);
-                            answer = new String(buffy, 0, sz - 1);
-                        }
-                        System.out.println("Resposta Buffer 02: " + answer);
-                    }
-                    catch (SocketException e) {
-                        System.out.println("ERROR!");
-                        return false;
-                    }
+		public VerificaBuffer(Socket connection) {
+			this.connection = connection;
+		}
 
-                } catch (IOException e) {
-                }
+		public void run() {
+			try {
+				BufferedReader input = new BufferedReader(
+						new InputStreamReader(connection.getInputStream()));
+				PrintWriter outputClient = new PrintWriter(
+						connection.getOutputStream(), true);
+				String msg;
 
-                return true;
-            }
-        }
+				while (true) {
 
-        public Boolean waitAnswerReply(Socket c, String msg) {
-            synchronized (lock) {
-                PrintWriter outputBuffer, outputClient;
-                try {
-                    outputBuffer = new PrintWriter(c.getOutputStream(), true);
-                    outputBuffer.println(msg);
+					try {
+						System.out
+								.println("---------------------------------------------------------------------");
+						outputClient.println("ok");
 
-                    BufferedReader inputPrimary = new BufferedReader(
-                            new InputStreamReader(c.getInputStream()));
+						char[] buffy = new char[32];
+						int sz = input.read(buffy);
+						msg = "";
+						System.out.println("Size: " + sz);
+						if (sz != -1) {
+							msg = new String(buffy, 0, sz - 1);
+							System.out.println("Message: " + msg);
+						}
+					} catch (SocketException se) {
+						listBuffers.remove(connection);
+						Thread.currentThread().interrupt();
+					}
 
-                    char[] buffy = new char[32];
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-                    try {
-                        int sz = inputPrimary.read(buffy);
-                        if (sz != -1) {
-                            answer = new String(buffy, 0, sz - 1);
-                            System.out.println("Resposta First: " + answer);
-                        }
-
-                        outputClient = new PrintWriter(
-                                connection.getOutputStream(), true);
-                        outputClient.println(answer);
-                    }
-                    catch (SocketException e) {
-                        System.out.println("ERROR!");
-                        outputClient = new PrintWriter(
-                                connection.getOutputStream(), true);
-                        outputClient.println(Status.ERROR_MSG);
-                        return false;
-                    }
-
-                }
-                catch (IOException e) {
-                }
-                return true;
-            }
-        }
-
-        @Override
-        public void run() {
-            try {
-                BufferedReader input = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream()));
-
-                while (true) {
-                    System.out
-                            .println("---------------------------------------------------------------------");
-                    char[] buffy = new char[32];
-                    int sz = input.read(buffy);
-                    if (sz != -1) {
-                        msg = new String(buffy, 0, sz - 1);
-                        System.out.println("Message: " + msg);
-                    }
-
-                    if (primaryActive) {
-                        Thread t1 = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                primaryActive = waitAnswerReply(primaryConn,
-                                        msg);
-                                Thread.currentThread().interrupt();
-                            }
-
-                        });
-
-                        if (secondaryActive) {
-                            Thread t2 = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    secondaryActive = waitAnswer(secondaryConn,
-                                            msg);
-                                    Thread.currentThread().interrupt();
-                                }
-                            });
-                            t1.start();
-                            t2.start();
-                        }
-                        else {
-                            t1.start();
-                        }
-                    }
-                    else {
-                        Thread t1 = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                secondaryActive = waitAnswerReply(
-                                        secondaryConn, msg);
-                                Thread.currentThread().interrupt();
-                            }
-                        });
-
-                        t1.start();
-                    }
-
-                    System.out.println("---------------------------------------------------------------------");
-                }
-            }
-            catch (IOException e) {
-            }
-        }
-    }
+		}
+	}
 
 }

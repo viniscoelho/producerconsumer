@@ -9,11 +9,17 @@ public class MainTwo {
 	public static void main(String[] args) {
 		Produtor p;
 		Scanner scan = new Scanner(System.in);
-		String ip = scan.next();
-		int port = scan.nextInt();
+		//String ip = scan.next();
+		//int port = scan.nextInt();
 		
-		p = new Produtor(ip, port);
-		p.start();
+		try {
+			p = new Produtor(InetAddress.getLocalHost().getHostAddress(), 12345);
+			p.start();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }

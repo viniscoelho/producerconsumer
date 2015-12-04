@@ -104,7 +104,16 @@ public class GerenciadorBuffer {
 				try {
 					PrintWriter outputClient = new PrintWriter(
 							connection.getOutputStream(), true);
-					outputClient.println("ok");
+					String info;
+					int index = listBuffers.indexOf(connection);
+
+					if (index != listBuffers.size()-1)
+						info = listBuffers.get(index + 1)
+								.getRemoteSocketAddress().toString();
+					else
+						info = "/empty";
+
+					outputClient.println(info);
 
 					char[] buffy = new char[32];
 					BufferedReader input = new BufferedReader(
@@ -113,27 +122,21 @@ public class GerenciadorBuffer {
 					msg = "";
 					if (sz != -1) {
 						msg = new String(buffy, 0, sz - 1);
+					} else {
+						listBuffers.remove(connection);
+						System.out.println("end " + connection.getRemoteSocketAddress().toString());
+						break;
 					}
-					//System.out.println("Msg: " + msg);
+					// System.out.println("Msg: " + msg);
 				} catch (SocketException se) {
-					System.out.println("remove");
-					int index = listBuffers.indexOf(connection);
-					try {
-						PrintWriter outputPrev = new PrintWriter(listBuffers.get(
-								index - 1).getOutputStream(), true);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					String info = listBuffers.get(index)
-							.getRemoteSocketAddress().toString();
-					listBuffers.remove(connection);
-					Thread.currentThread().interrupt();
+
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
+			
+			Thread.currentThread().interrupt();
 
 		}
 	}

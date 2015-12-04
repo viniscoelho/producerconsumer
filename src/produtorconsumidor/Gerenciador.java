@@ -111,6 +111,8 @@ public class Gerenciador {
 							msg = new String(buffy, 0, sz - 1);
 							System.out.println("Message: " + msg);
 							output.println(msg);
+						} else { 
+							output.println("error");
 						}
 						
 						conn.close();

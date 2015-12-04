@@ -24,11 +24,11 @@ public class Buffer implements Runnable, Status {
 	private Socket connection;
 	private static final Object countLock = new Object();
 
-	public Buffer(int port, int quantElements, String nextAddress, int nextPort) {
+	public Buffer(int port, int quantElements) {
 		try {
 			serverSock = new ServerSocket(port);
-			this.nextPort = nextPort;
-			this.nextAddress = nextAddress;
+			this.nextPort = 0;
+			this.nextAddress = null;
 			N = quantElements;
 		} catch (IOException e) {
 		}
@@ -76,7 +76,7 @@ public class Buffer implements Runnable, Status {
 			if (elements.size() == N) {
 				System.out.println("Buffer is full!");
 				output.println(IS_FULL);
-			} else {
+			} else if(!elements.contains(tmp)) {
 				elements.add(tmp);
 				System.out.println("Producing: " + element);
 				output.println(IS_PRODUCING);
@@ -118,17 +118,22 @@ public class Buffer implements Runnable, Status {
 								outputNext.println(msg);
 							}
 						}
-					} else if (msg.equals("ok")) {
-						System.out.println("ok");
-						PrintWriter output = new PrintWriter(
-								connection.getOutputStream(), true);
-						output.println("ok");
 					} else if (msg != "" && msg.charAt(0) == '/') {
 						synchronized (countLock) {
 							int pos = msg.indexOf(':');
-							nextAddress = msg.substring(1, pos);
-							nextPort = Integer.parseInt(msg.substring(pos + 1));
-							System.out.println(nextAddress + " " + nextPort);
+							if (pos != -1) {
+								nextAddress = msg.substring(1, pos);
+								nextPort = Integer.parseInt(msg
+										.substring(pos + 1));
+								System.out
+										.println(nextAddress + " " + nextPort);
+							} else {
+								nextAddress = null;
+								nextPort = 0;
+							}
+							PrintWriter output = new PrintWriter(
+									connection.getOutputStream(), true);
+							output.println("ok");
 						}
 					} else if (!msg.equals("")) {
 						putElement(msg);

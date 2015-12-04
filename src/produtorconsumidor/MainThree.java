@@ -9,15 +9,7 @@ public class MainThree {
 		int n = scan.nextInt();
 		Buffer buff;
 		
-		if(n != 12984) {
-			String next = scan.next();
-			int port = scan.nextInt();
-		
-			buff = new Buffer(n, 10, next, port);
-		}
-		else {
-			buff = new Buffer(n, 10, null, 0);
-		}
+		buff = new Buffer(n, 10);
 		
 		Thread t = new Thread(buff); 
 		t.start();

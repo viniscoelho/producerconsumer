@@ -32,7 +32,8 @@ public class Consumidor extends Thread implements Status{
                     new InputStreamReader(connection.getInputStream()));
 
             while (true) {
-                Thread.sleep((int) (Math.random() * 300));
+            	int waitt = (int) (Math.random() * 5000);
+                Thread.sleep(waitt);
                 System.out.println("Consuming");
                 output.println("get");
 
@@ -45,6 +46,8 @@ public class Consumidor extends Thread implements Status{
                 if (answer.equals(IS_EMPTY)) {
                     int wait = (int) (Math.random() * 1000);
                     Thread.sleep(wait);
+                } else if (answer.equals("error")) {
+                	System.out.println("ERROR");
                 }
             }
         } catch (IOException e) {

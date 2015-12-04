@@ -34,7 +34,7 @@ public class Produtor extends Thread implements Status {
             Integer value = (int) (Math.random() * 10000);
             
             while (true) {
-                int wait = (int) (Math.random() * 3000);
+                int wait = (int) (Math.random() * 5000);
                 Thread.sleep(wait);
 
                 System.out.println("Producing: " + value);
@@ -51,6 +51,8 @@ public class Produtor extends Thread implements Status {
                 	System.out.println("FULL");
                     wait = (int) (Math.random() * 1000);
                     Thread.sleep(wait);
+                } else if (answer.equals("error")) {
+                	System.out.println("ERROR");
                 }
                 else {
                 	System.out.println("OK");

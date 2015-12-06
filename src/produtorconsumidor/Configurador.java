@@ -17,9 +17,9 @@ public class Configurador {
 
     public static void main(String[] arg) {
         Scanner scan = new Scanner(System.in);
-        System.out.print("Enter the quantity of buffers: ");
-        int buffersQtd = scan.nextInt();
-        for ( int i = 0; i < buffersQtd; i++ ) {
+//        System.out.print("Enter the quantity of buffers: ");
+//        int buffersQtd = scan.nextInt();
+//        for ( int i = 0; i < buffersQtd; i++ ) {
             System.out.println("A prompt will pop up to configure it: ");
             Runnable r = new Runnable() {
                 @Override
@@ -29,49 +29,49 @@ public class Configurador {
             };
             Thread t = new Thread(r);
             t.start();
-        }
-        
-        System.out.print("Next, you must configure the managers. Enter the quantity: ");
-        int managersQtd = scan.nextInt();
-        for ( int i = 0; i < managersQtd; i++ ) {
-            System.out.println("A prompt will pop up to configure it: ");
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    configureInstance();
-                }
-            };
-            Thread t = new Thread(r);
-            t.start();
-        }
-        
-        System.out.print("Now, enter the quantity of consumers: ");
-        int consumersQtd = scan.nextInt();
-        for ( int i = 0; i < consumersQtd; i++ ) {
-            System.out.println("A prompt will pop up to configure it: ");
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    configureInstance();
-                }
-            };
-            Thread t = new Thread(r);
-            t.start();
-        }
-        
-        System.out.print("Finally, enter the quantity of producers: ");
-        int producersQtd = scan.nextInt();
-        for ( int i = 0; i < producersQtd; i++ ) {
-            System.out.println("A prompt will pop up to configure it: ");
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    configureInstance();
-                }
-            };
-            Thread t = new Thread(r);
-            t.start();
-        }
+//        }
+//        
+//        System.out.print("Next, you must configure the managers. Enter the quantity: ");
+//        int managersQtd = scan.nextInt();
+//        for ( int i = 0; i < managersQtd; i++ ) {
+//            System.out.println("A prompt will pop up to configure it: ");
+//            Runnable r = new Runnable() {
+//                @Override
+//                public void run() {
+//                    configureInstance();
+//                }
+//            };
+//            Thread t = new Thread(r);
+//            t.start();
+//        }
+//        
+//        System.out.print("Now, enter the quantity of consumers: ");
+//        int consumersQtd = scan.nextInt();
+//        for ( int i = 0; i < consumersQtd; i++ ) {
+//            System.out.println("A prompt will pop up to configure it: ");
+//            Runnable r = new Runnable() {
+//                @Override
+//                public void run() {
+//                    configureInstance();
+//                }
+//            };
+//            Thread t = new Thread(r);
+//            t.start();
+//        }
+//        
+//        System.out.print("Finally, enter the quantity of producers: ");
+//        int producersQtd = scan.nextInt();
+//        for ( int i = 0; i < producersQtd; i++ ) {
+//            System.out.println("A prompt will pop up to configure it: ");
+//            Runnable r = new Runnable() {
+//                @Override
+//                public void run() {
+//                    configureInstance();
+//                }
+//            };
+//            Thread t = new Thread(r);
+//            t.start();
+//        }
         
     }
     

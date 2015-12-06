@@ -13,7 +13,7 @@ public class MainConsumidor {
             System.out.println("Wrong number of arguments!");
             System.exit(1);
         }
-        else{
+        else {
             String ip = args[0];
             Integer port = Integer.parseInt(args[1]);
 

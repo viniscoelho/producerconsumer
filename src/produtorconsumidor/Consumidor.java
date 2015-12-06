@@ -42,7 +42,7 @@ public class Consumidor extends Thread implements Status {
                 int sz = input.read(buffy);
                 String answer = new String(buffy, 0, sz - 1);
 
-                System.out.println("Consumidror " + answer);
+                System.out.println("Consumidor " + answer);
 
                 if (answer.equals(IS_EMPTY)) {
                     int wait = (int) (Math.random() * 1000);

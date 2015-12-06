@@ -20,11 +20,7 @@ public class Produtor extends Thread implements Status {
         try {
             connection = new Socket(host, port);
         } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -38,7 +34,7 @@ public class Produtor extends Thread implements Status {
             Integer value = (int) (Math.random() * 10000);
 
             while (true) {
-                int wait = (int) (Math.random() * 5000);
+                int wait = (int) (Math.random() * 1000);
                 Thread.sleep(wait);
 
                 System.out.println("Producing: " + value);

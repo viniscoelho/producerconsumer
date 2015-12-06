@@ -157,7 +157,6 @@ public class Buffer implements Runnable, Status {
                             .println("Number of elements: " + elements.size());
                 }
             } catch (SocketException se) {
-                System.out.println("Vini tapado!");
                 Thread.currentThread().interrupt();
             } catch (IOException e) {
             }

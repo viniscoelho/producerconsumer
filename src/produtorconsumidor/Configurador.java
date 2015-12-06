@@ -97,7 +97,7 @@ public class Configurador {
 
             Channel channel = session.openChannel("exec");
             // first command sets the path where the java code is located
-            ((ChannelExec) channel).setCommand("open -a Terminal; cd producerconsumer/build/classes;" + command);
+            ((ChannelExec) channel).setCommand("cd producerconsumer/build/classes;" + command);
 
             channel.setInputStream(null);
 

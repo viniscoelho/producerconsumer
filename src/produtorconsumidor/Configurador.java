@@ -1,5 +1,10 @@
 package produtorconsumidor;
 
+/**
+ *
+ * @author viniciuscoelho, thaismombach
+ */
+
 import com.jcraft.jsch.*;
 import java.awt.*;
 import javax.swing.*;
@@ -133,6 +138,7 @@ public class Configurador {
             return true;
         }
 
+        @Override
         public boolean promptPassword(String message) {
             Object[] ob = {passwordField};
             int result

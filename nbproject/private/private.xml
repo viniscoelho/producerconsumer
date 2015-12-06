@@ -3,10 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/viniciuscoelho/github/producerconsumer/src/produtorconsumidor/Configurador.java</file>
-            <file>file:/Users/viniciuscoelho/github/producerconsumer/src/produtorconsumidor/Buffer.java</file>
-            <file>file:/Users/viniciuscoelho/github/producerconsumer/src/produtorconsumidor/Tayzuera.java</file>
-            <file>file:/Users/viniciuscoelho/github/producerconsumer/src/produtorconsumidor/Taistragada.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/MainGerenciador.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/Consumidor.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/GerenciadorBuffer.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/MainGerenciadorBuffer.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/MainBuffer.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/Buffer.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/Gerenciador.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/Configurador.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/MainConsumidor.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/Status.java</file>
+            <file>file:/Users/viniciuscoelho/producerconsumer/src/produtorconsumidor/Produtor.java</file>
         </group>
     </open-files>
 </project-private>

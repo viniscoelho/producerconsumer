@@ -5,6 +5,8 @@ package produtorconsumidor;
  * @author viniciuscoelho, thaismombach
  */
 
+//Jzp2104.
+
 import com.jcraft.jsch.*;
 import java.awt.*;
 import javax.swing.*;
@@ -19,27 +21,56 @@ public class Configurador {
         int buffersQtd = scan.nextInt();
         for ( int i = 0; i < buffersQtd; i++ ) {
             System.out.println("A prompt will pop up to configure it: ");
-            configureInstance();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    configureInstance();
+                }
+            };
+            Thread t = new Thread(r);
+            t.start();
         }
         
-        System.out.print("Next, you must configure the manager: ");
-        for ( int i = 0; i < 2; i++ ) {
+        System.out.print("Next, you must configure the managers. Enter the quantity: ");
+        int managersQtd = scan.nextInt();
+        for ( int i = 0; i < managersQtd; i++ ) {
             System.out.println("A prompt will pop up to configure it: ");
-            configureInstance();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    configureInstance();
+                }
+            };
+            Thread t = new Thread(r);
+            t.start();
         }
         
         System.out.print("Now, enter the quantity of consumers: ");
         int consumersQtd = scan.nextInt();
         for ( int i = 0; i < consumersQtd; i++ ) {
             System.out.println("A prompt will pop up to configure it: ");
-            configureInstance();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    configureInstance();
+                }
+            };
+            Thread t = new Thread(r);
+            t.start();
         }
         
         System.out.print("Finally, enter the quantity of producers: ");
         int producersQtd = scan.nextInt();
         for ( int i = 0; i < producersQtd; i++ ) {
             System.out.println("A prompt will pop up to configure it: ");
-            configureInstance();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    configureInstance();
+                }
+            };
+            Thread t = new Thread(r);
+            t.start();
         }
         
     }
@@ -66,7 +97,7 @@ public class Configurador {
 
             Channel channel = session.openChannel("exec");
             // first command sets the path where the java code is located
-            ((ChannelExec) channel).setCommand("cd github/producerconsumer/build/classes;" + command);
+            ((ChannelExec) channel).setCommand("open -a Terminal; cd producerconsumer/build/classes;" + command);
 
             channel.setInputStream(null);
 

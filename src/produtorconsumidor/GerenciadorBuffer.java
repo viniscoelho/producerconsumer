@@ -14,7 +14,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
 public class GerenciadorBuffer {
 
@@ -22,22 +21,15 @@ public class GerenciadorBuffer {
     private ServerSocket serverSocket = null;
     private final int PORT = 12346;
 
-    public GerenciadorBuffer() {
+    public GerenciadorBuffer(int qtd, String [] addresses, int [] ports) {
         try {
             serverSocket = new ServerSocket(PORT);
             listBuffers = new LinkedList<Socket>();
 
-            System.out.println("Quantidade de Buffers:");
-            Scanner scan = new Scanner(System.in);
-            int n = scan.nextInt();
+            int n = qtd;
 
             for (int i = 0; i < n; i++) {
-                System.out.print("Endereco IP: ");
-                String address = scan.next();
-                System.out.print("Porta: ");
-                int portBuff = scan.nextInt();
-
-                listBuffers.add(new Socket(address, portBuff));
+                listBuffers.add(new Socket(addresses[i], ports[i]));
 
                 VerificaBuffer vb = new VerificaBuffer(listBuffers.get(i));
                 vb.start();
@@ -60,7 +52,7 @@ public class GerenciadorBuffer {
 
     public void waitForMessages(Socket connection) {
         try {
-            System.out.println("Waiting for Msgs...");
+            System.out.println("Waiting for messages...");
 
             BufferedReader input = new BufferedReader(new InputStreamReader(
                     connection.getInputStream()));

@@ -13,12 +13,15 @@ java produtorconsumidor/MainGerenciadorBuffer 3 192.168.25.10 12347 192.168.25.6
 public class MainGerenciadorBuffer {
 
     public static void main(String[] args) {
+    	System.out.println("Teste!");
         if ( args.length < 3 ){
             System.out.println("Wrong number of arguments!");
             System.exit(1);
         }
         else{
+        	System.out.println("Teste1!");
             int n = Integer.parseInt(args[0]);
+            System.out.println("N: " + n);
             String [] addresses = new String[args.length/2];
             int [] ports = new int[args.length/2];
             for ( int i = 0, j = 1; i < n; i++, j += 2 ) {

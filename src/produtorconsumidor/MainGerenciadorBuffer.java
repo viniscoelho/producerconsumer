@@ -19,7 +19,7 @@ public class MainGerenciadorBuffer {
             System.exit(1);
         }
         else{
-        	System.out.println("Teste1!");
+            System.out.println("Teste1!");
             int n = Integer.parseInt(args[0]);
             System.out.println("N: " + n);
             String [] addresses = new String[args.length/2];

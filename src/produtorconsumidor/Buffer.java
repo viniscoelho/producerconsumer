@@ -17,150 +17,151 @@ import java.util.List;
 
 public class Buffer implements Runnable, Status {
 
-	private List<Integer> elements = new LinkedList<Integer>();
-	private int N, nextPort;
-	private String nextAddress;
-	private ServerSocket serverSock;
-	private Socket connection;
-	private static final Object countLock = new Object();
+    private List<Integer> elements = new LinkedList<Integer>();
+    private int N, nextPort;
+    private String nextAddress;
+    private ServerSocket serverSock;
+    private Socket connection;
+    private static final Object countLock = new Object();
 
-	public Buffer(int port, int quantElements) {
-		try {
-			serverSock = new ServerSocket(port);
-			this.nextPort = 0;
-			this.nextAddress = null;
-			N = quantElements;
-		} catch (IOException e) {
-		}
-	}
+    public Buffer(int port, int quantElements) {
+        try {
+            serverSock = new ServerSocket(port);
+            this.nextPort = 0;
+            this.nextAddress = null;
+            N = quantElements;
+        } catch (IOException e) {
+        }
+    }
 
-	public void run() {
-		try {
-			while (true) {
-				System.out.println("Waiting for connections...");
-				connection = serverSock.accept();
-				System.out.println("Connected!");
+    public void run() {
+        try {
+            while (true) {
+                System.out.println("Waiting for connections...");
+                connection = serverSock.accept();
+                System.out.println("Connected!");
 
-				BufferMsg buffer = new BufferMsg(connection);
-				buffer.start();
-			}
-		} catch (IOException e) {
-		}
-	}
+                BufferMsg buffer = new BufferMsg(connection);
+                buffer.start();
+            }
+        } catch (IOException e) {
+        }
+    }
 
-	class BufferMsg extends Thread {
-		private Socket connection;
+    class BufferMsg extends Thread {
 
-		public BufferMsg(Socket connection) {
-			this.connection = connection;
-		}
+        private Socket connection;
 
-		private synchronized void getElement() throws IOException {
-			PrintWriter output = new PrintWriter(connection.getOutputStream(),
-					true);
+        public BufferMsg(Socket connection) {
+            this.connection = connection;
+        }
 
-			if (elements.isEmpty()) {
-				System.out.println("Buffer empty!");
-				output.println(IS_EMPTY);
-			} else {
-				Integer value = elements.remove(0);
-				System.out.println("Consuming: " + value);
-				output.println(IS_CONSUMING);
-			}
-		}
+        private synchronized void getElement() throws IOException {
+            PrintWriter output = new PrintWriter(connection.getOutputStream(),
+                    true);
 
-		private synchronized void putElement(String element) throws IOException {
-			PrintWriter output = new PrintWriter(connection.getOutputStream(),
-					true);
-			Integer tmp = new Integer(element);
-			if (elements.size() == N) {
-				System.out.println("Buffer is full!");
-				output.println(IS_FULL);
-			} else if(!elements.contains(tmp)) {
-				elements.add(tmp);
-				System.out.println("Producing: " + element);
-				output.println(IS_PRODUCING);
-			}
-		}
+            if (elements.isEmpty()) {
+                System.out.println("Buffer empty!");
+                output.println(IS_EMPTY);
+            } else {
+                Integer value = elements.remove(0);
+                System.out.println("Consuming: " + value);
+                output.println(IS_CONSUMING);
+            }
+        }
 
-		@Override
-		public void run() {
-			try {
+        private synchronized void putElement(String element) throws IOException {
+            PrintWriter output = new PrintWriter(connection.getOutputStream(),
+                    true);
+            Integer tmp = new Integer(element);
+            if (elements.size() == N) {
+                System.out.println("Buffer is full!");
+                output.println(IS_FULL);
+            } else if (!elements.contains(tmp)) {
+                elements.add(tmp);
+                System.out.println("Producing: " + element);
+                output.println(IS_PRODUCING);
+            }
+        }
 
-				BufferedReader input = new BufferedReader(
-						new InputStreamReader(connection.getInputStream()));
+        @Override
+        public void run() {
+            try {
 
-				while (true) {
-					char[] buffy = new char[32];
-					int sz = input.read(buffy);
-					String msg = "";
-					if (sz != -1) {
-						msg = new String(buffy, 0, sz - 1);
-					}
+                BufferedReader input = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream()));
 
-					System.out.println("Element sent: " + msg);
+                while (true) {
+                    char[] buffy = new char[32];
+                    int sz = input.read(buffy);
+                    String msg = "";
+                    if (sz != -1) {
+                        msg = new String(buffy, 0, sz - 1);
+                    }
 
-					System.out
-							.println("-----------------------------------------");
-					System.out.println("List (Before Request): "
-							+ elements.toString());
-					System.out
-							.println("Number of elements: " + elements.size());
+                    System.out.println("Element sent: " + msg);
 
-					if (msg.equals("get")) {
-						getElement();
-						synchronized (countLock) {
-							if (nextAddress != null) {
-								Socket connectionNext = new Socket(nextAddress,
-										nextPort);
-								PrintWriter outputNext = new PrintWriter(
-										connectionNext.getOutputStream(), true);
-								outputNext.println(msg);
-							}
-						}
-					} else if (msg != "" && msg.charAt(0) == '/') {
-						synchronized (countLock) {
-							int pos = msg.indexOf(':');
-							if (pos != -1) {
-								nextAddress = msg.substring(1, pos);
-								nextPort = Integer.parseInt(msg
-										.substring(pos + 1));
-								System.out
-										.println(nextAddress + " " + nextPort);
-							} else {
-								nextAddress = null;
-								nextPort = 0;
-							}
-							PrintWriter output = new PrintWriter(
-									connection.getOutputStream(), true);
-							output.println("ok");
-						}
-					} else if (!msg.equals("")) {
-						putElement(msg);
-						synchronized (countLock) {
-							if (nextAddress != null) {
-								Socket connectionNext = new Socket(nextAddress,
-										nextPort);
-								PrintWriter outputNext = new PrintWriter(
-										connectionNext.getOutputStream(), true);
-								outputNext.println(msg);
-							}
-						}
-					}
+                    System.out
+                            .println("-----------------------------------------");
+                    System.out.println("List (Before Request): "
+                            + elements.toString());
+                    System.out
+                            .println("Number of elements: " + elements.size());
 
-					System.out
-							.println("-----------------------------------------");
-					System.out.println("List (After Request): "
-							+ elements.toString());
-					System.out
-							.println("Number of elements: " + elements.size());
-				}
-			} catch (SocketException se) {
-				System.out.println("Vini tapado!");
-				Thread.currentThread().interrupt();
-			} catch (IOException e) {
-			}
-		}
-	}
+                    if (msg.equals("get")) {
+                        getElement();
+                        synchronized (countLock) {
+                            if (nextAddress != null) {
+                                Socket connectionNext = new Socket(nextAddress,
+                                        nextPort);
+                                PrintWriter outputNext = new PrintWriter(
+                                        connectionNext.getOutputStream(), true);
+                                outputNext.println(msg);
+                            }
+                        }
+                    } else if (msg != "" && msg.charAt(0) == '/') {
+                        synchronized (countLock) {
+                            int pos = msg.indexOf(':');
+                            if (pos != -1) {
+                                nextAddress = msg.substring(1, pos);
+                                nextPort = Integer.parseInt(msg
+                                        .substring(pos + 1));
+                                System.out
+                                        .println(nextAddress + " " + nextPort);
+                            } else {
+                                nextAddress = null;
+                                nextPort = 0;
+                            }
+                            PrintWriter output = new PrintWriter(
+                                    connection.getOutputStream(), true);
+                            output.println("ok");
+                        }
+                    } else if (!msg.equals("")) {
+                        putElement(msg);
+                        synchronized (countLock) {
+                            if (nextAddress != null) {
+                                Socket connectionNext = new Socket(nextAddress,
+                                        nextPort);
+                                PrintWriter outputNext = new PrintWriter(
+                                        connectionNext.getOutputStream(), true);
+                                outputNext.println(msg);
+                            }
+                        }
+                    }
+
+                    System.out
+                            .println("-----------------------------------------");
+                    System.out.println("List (After Request): "
+                            + elements.toString());
+                    System.out
+                            .println("Number of elements: " + elements.size());
+                }
+            } catch (SocketException se) {
+                System.out.println("Vini tapado!");
+                Thread.currentThread().interrupt();
+            } catch (IOException e) {
+            }
+        }
+    }
 
 }

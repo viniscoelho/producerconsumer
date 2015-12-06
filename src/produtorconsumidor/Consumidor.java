@@ -1,14 +1,19 @@
 package produtorconsumidor;
 
+/**
+ *
+ * @author viniciuscoelho, thaismombach
+ */
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Consumidor extends Thread implements Status{
+public class Consumidor extends Thread implements Status {
+
     private Socket connection;
 
     public Consumidor(String host, int port) {
@@ -32,22 +37,22 @@ public class Consumidor extends Thread implements Status{
                     new InputStreamReader(connection.getInputStream()));
 
             while (true) {
-            	int waitt = (int) (Math.random() * 5000);
+                int waitt = (int) (Math.random() * 5000);
                 Thread.sleep(waitt);
                 System.out.println("Consuming");
                 output.println("get");
 
-                char [] buffy = new char[32];
+                char[] buffy = new char[32];
                 int sz = input.read(buffy);
-                String answer = new String(buffy, 0, sz-1);
-                
+                String answer = new String(buffy, 0, sz - 1);
+
                 System.out.println("Consumidror " + answer);
-                
+
                 if (answer.equals(IS_EMPTY)) {
                     int wait = (int) (Math.random() * 1000);
                     Thread.sleep(wait);
                 } else if (answer.equals("error")) {
-                	System.out.println("ERROR");
+                    System.out.println("ERROR");
                 }
             }
         } catch (IOException e) {

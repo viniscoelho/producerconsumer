@@ -17,8 +17,8 @@ public class MainConsumidor {
             String ip = args[0];
             Integer port = Integer.parseInt(args[1]);
 
-            Consumidor p = new Consumidor(ip, port);
-            Thread t1 = new Thread(p);
+            Consumidor c = new Consumidor(ip, port);
+            Thread t1 = new Thread(c);
 
             t1.start();
         }

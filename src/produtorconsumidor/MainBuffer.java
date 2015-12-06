@@ -17,8 +17,8 @@ public class MainBuffer {
             Integer port = Integer.parseInt(args[0]);
             Integer elements = Integer.parseInt(args[1]);
 
-            Buffer p = new Buffer(port, elements);
-            Thread t1 = new Thread(p);
+            Buffer b = new Buffer(port, elements);
+            Thread t1 = new Thread(b);
 
             t1.start();
         }

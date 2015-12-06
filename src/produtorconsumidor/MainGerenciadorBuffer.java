@@ -9,6 +9,7 @@ public class MainGerenciadorBuffer {
 
     public static void main(String[] args) {
         GerenciadorBuffer g = new GerenciadorBuffer();
+        g.waitForConnections();
     }
 
 }

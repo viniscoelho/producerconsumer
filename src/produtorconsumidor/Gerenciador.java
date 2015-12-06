@@ -14,11 +14,10 @@ public class Gerenciador {
     private Socket connectionSend;
     private final int PORT = 12345;
 
-    public Gerenciador() {
+    public Gerenciador(String ip, int port) {
         try {
             serverSocket = new ServerSocket(PORT);
-            connectionSend = new Socket(InetAddress.getLocalHost()
-                    .getHostAddress(), 12346);
+            connectionSend = new Socket(ip, port);
         } catch (IOException e) {
         }
     }

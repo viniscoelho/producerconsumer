@@ -20,11 +20,7 @@ public class Consumidor extends Thread implements Status {
         try {
             connection = new Socket(host, port);
         } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 

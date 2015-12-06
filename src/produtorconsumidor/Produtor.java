@@ -18,7 +18,6 @@ public class Produtor extends Thread implements Status {
 
     public Produtor(String host, int port) {
         try {
-            System.out.println("entrou");
             connection = new Socket(host, port);
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block

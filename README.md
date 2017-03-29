@@ -1,4 +1,4 @@
-Uso do configurador:
+## Configurando
 
 Primeiramente, os buffers devem ser inicializados; na linha de comando, será perguntado quantos buffers você deseja ter na aplicação. Em seguida, janelas aparecerão perguntando onde deseja executar os buffers, solicitando uma conexão ssh. Após feito isso, será solicitando que seja fornecido um comando via terminal para a execução do buffer. A chamada do método de inicialização é a mesma para todas as classes; o único diferencial é a ordem em que devem ser executados. Seus parâmetros de execução são: porta e quantidade de elementos.
 
